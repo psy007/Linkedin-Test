@@ -8,6 +8,7 @@ from scrapy.loader.processors import Identity
 from scrapy.spiders.crawl import CrawlSpider
 #from scrapylib.processors import default_input_processor, default_output_processor
 from scrapy.loader.processors import  TakeFirst, MapCompose
+from w3lib.html import remove_tags
 
 
 __author__ = 'Prabhat Singh Yadav'
@@ -93,7 +94,7 @@ class SimplyLawJobs(CrawlSpider):
     There are some utilities above like "NormalizedJoin" and JobItemLoader
     to help making generating clean item data easier.
     """
-    start_urls = ["http://www.simplylawjobs.com/jobs".format()]
+    start_urls = ["https://www.simplylawjobs.com/jobs?page={}".format(i) for i in range(5)] #Mannual pagination logic
     name = 'lawjobsspider'
 
     def parse(self, response):
