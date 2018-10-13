@@ -32,13 +32,13 @@ class NormalizedJoin(object):
 
 class JobItem(Item):
     # required fields
-    title = Field()
+    title = Field(input_processor = MapCompose(remove_tags), output_processor=TakeFirst())
     # a unique id for the job on the crawled site.
     job_id = Field()
     # the url the job was crawled from
     url = Field()
     # name of the company where the job is.
-    company = Field()
+    company = Field(input_processor = MapCompose(remove_tags), output_processor=TakeFirst())
 
     # location of the job.
     # should ideally include city, state and country.
@@ -94,7 +94,7 @@ class SimplyLawJobs(CrawlSpider):
     There are some utilities above like "NormalizedJoin" and JobItemLoader
     to help making generating clean item data easier.
     """
-    start_urls = ["https://www.simplylawjobs.com/jobs?page={}".format(i) for i in range(5)] #Mannual pagination logic
+    start_urls = ["https://www.simplylawjobs.com/jobs?page={}".format(i) for i in range(3)] #Mannual pagination logic
     name = 'lawjobsspider'
 
     def parse(self, response):
@@ -110,6 +110,7 @@ class SimplyLawJobs(CrawlSpider):
         Job = ItemLoader(item=JobItem(), selector=response)
 
         Job.add_xpath('title', '//div[@class="columns small-12 medium-4 large-4 details"]/h1/text()')
+        Job.add_xpath('company', '//div[@class="columns small-12 medium-4 large-4 details"]/a/text()')
         yield Job.load_item()
 
 
