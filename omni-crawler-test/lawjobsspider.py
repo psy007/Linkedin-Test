@@ -44,7 +44,7 @@ class JobItem(Item):
     # should ideally include city, state and country.
     # postal code if available.
     # does not need to include street information
-    location = Field()
+    location = Field(input_processor = MapCompose(remove_tags), output_processor=TakeFirst())
     description = Field()
 
     # the url users should be sent to for viewing the job. Sometimes
@@ -94,7 +94,10 @@ class SimplyLawJobs(CrawlSpider):
     There are some utilities above like "NormalizedJoin" and JobItemLoader
     to help making generating clean item data easier.
     """
-    start_urls = ["https://www.simplylawjobs.com/jobs?page={}".format(i) for i in range(3)] #Mannual pagination logic
+    start_urls = ["https://www.simplylawjobs.com/jobs?page={}".format(i) for i in range(3)]
+    #Mannual pagination logic
+    # currently scrapping just 2 pages.
+    #start_urls = ["https://www.simplylawjobs.com/jobs"]
     name = 'lawjobsspider'
 
     def parse(self, response):
@@ -109,8 +112,9 @@ class SimplyLawJobs(CrawlSpider):
 
         Job = ItemLoader(item=JobItem(), selector=response)
 
-        Job.add_xpath('title', '//div[@class="columns small-12 medium-4 large-4 details"]/h1/text()')
-        Job.add_xpath('company', '//div[@class="columns small-12 medium-4 large-4 details"]/a/text()')
+        Job.add_xpath('title', '//div[@class="columns small-12 medium-4 large-4 details"]/h1/text()'.strip())
+        Job.add_xpath('company', '//div[@class="columns small-12 medium-4 large-4 details"]/a[1]/text()')
+        Job.add_xpath('location', '//div[@class="columns small-12 medium-4 large-4 details"]/a[2]/text()')
         yield Job.load_item()
 
 
